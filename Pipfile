@@ -13,7 +13,7 @@ kaggle = "*"
 ipykernel = "*"
 pyarrow = "*"
 dvc = {extras = ["s3"], version = "*"}
-swifter = "*"
+pandarallel = "*"
 
 [dev-packages]
 
