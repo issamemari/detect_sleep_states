@@ -48,13 +48,18 @@ class OneDObjectDetectionCNN(nn.Module):
             64, self.num_anchors * 2, kernel_size=1
         )  # Each anchor has 2 coordinates (start, end)
 
+        self.sigmoid = nn.Sigmoid()
+
     def forward(self, x):
         # Forward pass through the network
         x = self.layers(x)
 
-        # Predict class scores and bounding box adjustments
+        # Predict class scores
         scores = self.score_pred(x)
+
+        # Predict bounding box adjustments
         bboxes = self.bbox_pred(x)
+        bboxes = self.sigmoid(bboxes)
 
         # Reshape the output for easy interpretation
         scores = scores.permute(0, 2, 1).contiguous()

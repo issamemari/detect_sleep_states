@@ -43,23 +43,27 @@ class OneDObjectDetectionLoss(nn.Module):
 
         scores = scores.view(-1, num_anchors, num_classes)
 
-        gt_bboxes = gt_bboxes.view(-1, 2)
-        gt_classes = gt_classes.view(-1)
-
         # get the best anchor for each ground truth box
         best_anchors = []
-        for b in range(gt_bboxes.size(0)):
-            best_anchors.append(self.find_best_anchor(anchors, gt_bboxes[b]))
+        for b in range(len(gt_bboxes)):  # batch items
+            best_anchors_item = []
+            for box in gt_bboxes[b]:
+                best_anchors_item.append(self.find_best_anchor(anchors, box))
+
+            best_anchors.append(best_anchors_item)
 
         scores_ready = torch.zeros_like(scores)
-        scores_ready[range(scores.size(0)), best_anchors, gt_classes] = 1
+        for i, b in enumerate(best_anchors):
+            scores_ready[i, b, gt_classes[i]] = 1
 
         bboxes_ready = torch.zeros_like(bboxes)
-        bboxes_ready[range(bboxes.size(0)), best_anchors, :] = gt_bboxes
+        for i, b in enumerate(best_anchors):
+            bboxes_ready[i, b, :] = gt_bboxes[i]
 
-        # for bboxes, keep only best anchors
-        bboxes_ready = bboxes_ready[range(bboxes.size(0)), best_anchors, :]
-        bboxes = bboxes[range(bboxes.size(0)), best_anchors, :]
+        # keep only the best anchor for each ground truth box
+        # set values of bboxes to 0 for anchors that are not the best
+        mask = bboxes_ready != 0
+        bboxes = bboxes * mask
 
         classification_loss = F.binary_cross_entropy_with_logits(
             scores, scores_ready, reduction="sum"

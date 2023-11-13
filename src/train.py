@@ -1,8 +1,39 @@
+import torch
+from tqdm import tqdm
+
 from dataset import DetectSleepStatesDataset
 from model import OneDObjectDetectionCNN, OneDObjectDetectionLoss
 from transforms import resize
 
-import torch
+
+def collate_fn(batch):
+    signal, gt_bboxes = zip(*batch)
+
+    signal = torch.stack(signal)
+
+    return signal, gt_bboxes
+
+
+def create_data_loaders(dataset, batch_size: int):
+    split_point = int(0.8 * len(dataset))
+    train_dataset, val_dataset = torch.utils.data.random_split(
+        dataset, [split_point, len(dataset) - split_point]
+    )
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        collate_fn=collate_fn,
+    )
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        collate_fn=collate_fn,
+    )
+
+    return train_loader, val_loader
 
 
 def main():
@@ -20,15 +51,35 @@ def main():
         transform=resize(signal_length),
     )
 
+    train_loader, val_loader = create_data_loaders(dataset, batch_size=4)
+
     loss_function = OneDObjectDetectionLoss()
 
-    signal, gt_bboxes = dataset[0]
-    scores, bboxes = model(signal.unsqueeze(0))
-    gt_classes = torch.tensor([[1]])
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
+    epochs = 10
+    batch_size = 4
 
-    import code
-    code.interact(local=locals())
+    torch.autograd.set_detect_anomaly(True)
+
+    for epoch in range(10):
+        tqdm_iterator = tqdm(train_loader, total=len(train_loader))
+        tqdm_iterator.set_description(f"Epoch {epoch}: ")
+
+        for batch in tqdm_iterator:
+            signal, gt_bboxes = batch
+
+            scores, bboxes = model(signal)
+
+            gt_classes = torch.tensor([[1]] * batch_size)
+
+            loss = loss_function(scores, bboxes, gt_classes, gt_bboxes, model.anchors)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            print(loss)
 
 
 if __name__ == "__main__":
