@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d57fc9e59270b359e8373d30ff2855f33c674e203b85eeffedaf361567f64dbf"
+            "sha256": "8e4def251e0d848ab259009f3885d416dd2653959cf105a2b8ce90420e9d87a0"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -942,6 +942,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==8.12.3"
         },
+        "ipywidgets": {
+            "hashes": [
+                "sha256:2b88d728656aea3bbfd05d32c747cfd0078f9d7e159cf982433b58ad717eed7f",
+                "sha256:40211efb556adec6fa450ccc2a77d59ca44a060f4f9f136833df59c9f538e6e8"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==8.1.1"
+        },
         "iterative-telemetry": {
             "hashes": [
                 "sha256:5bed9d19109c892cff2a4712a2fb18ad727079a7ab260a28b1e2f6934eec652d",
@@ -1005,6 +1014,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==5.5.0"
+        },
+        "jupyterlab-widgets": {
+            "hashes": [
+                "sha256:3cf5bdf5b897bf3bccf1c11873aa4afd776d7430200f765e0686bd352487b58d",
+                "sha256:6005a4e974c7beee84060fdfba341a3218495046de8ae3ec64888e5fe19fdb4c"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==3.0.9"
         },
         "kaggle": {
             "hashes": [
@@ -2279,6 +2296,14 @@
                 "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"
             ],
             "version": "==0.5.1"
+        },
+        "widgetsnbextension": {
+            "hashes": [
+                "sha256:3c1f5e46dc1166dfd40a42d685e6a51396fd34ff878742a3e47c6f0cc4a2a385",
+                "sha256:91452ca8445beb805792f206e560c1769284267a30ceb1cec9f5bcc887d15175"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==4.0.9"
         },
         "wrapt": {
             "hashes": [
