@@ -18,6 +18,8 @@ ipywidgets = "*"
 tqdm = "*"
 polars = "*"
 torch = "*"
+hydra-core = "*"
+wandb = "*"
 
 [dev-packages]
 

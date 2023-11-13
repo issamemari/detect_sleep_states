@@ -4,14 +4,14 @@ from torch.utils.data import Dataset
 
 
 class DetectSleepStatesDataset(Dataset):
-    def __init__(self, train_series: str, train_events: str, transform=None):
-        self.train_series = pd.read_csv(train_series)
-        self.train_events = pd.read_csv(train_events)
+    def __init__(self, series: str, events: str, transform=None):
+        self.series = pd.read_csv(series)
+        self.events = pd.read_csv(events)
 
-        self.train_series.set_index("series_id", inplace=True)
-        self.train_events.set_index("series_id", inplace=True)
+        self.series.set_index("series_id", inplace=True)
+        self.events.set_index("series_id", inplace=True)
 
-        self.series_ids = list(set(self.train_series.index))
+        self.series_ids = list(set(self.series.index))
 
         self.transform = transform
 
@@ -20,8 +20,8 @@ class DetectSleepStatesDataset(Dataset):
 
     def __getitem__(self, idx):
         series_id = self.series_ids[idx]
-        series = self.train_series.loc[series_id]
-        events = self.train_events.loc[series_id]
+        series = self.series.loc[series_id]
+        events = self.events.loc[series_id]
 
         signal = torch.tensor(series[["anglez", "enmo"]].values.T)
         signal_len = signal.shape[1]

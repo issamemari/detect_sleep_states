@@ -1,9 +1,15 @@
+import logging
+
+import hydra
 import torch
 from tqdm import tqdm
 
+import wandb
 from dataset import DetectSleepStatesDataset
 from model import OneDObjectDetectionCNN, OneDObjectDetectionLoss
 from transforms import resize
+
+logger = logging.getLogger(__name__)
 
 
 def collate_fn(batch):
@@ -14,7 +20,7 @@ def collate_fn(batch):
     return signal, gt_bboxes
 
 
-def create_data_loaders(dataset, batch_size: int):
+def create_data_loaders(dataset, *, batch_size: int, num_workers: int):
     split_point = int(0.8 * len(dataset))
     train_dataset, val_dataset = torch.utils.data.random_split(
         dataset, [split_point, len(dataset) - split_point]
@@ -25,42 +31,36 @@ def create_data_loaders(dataset, batch_size: int):
         batch_size=batch_size,
         shuffle=True,
         collate_fn=collate_fn,
+        num_workers=num_workers,
     )
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
         batch_size=batch_size,
         shuffle=True,
         collate_fn=collate_fn,
+        num_workers=num_workers,
     )
 
     return train_loader, val_loader
 
 
-def main():
-    signal_length = 40000
-    model = OneDObjectDetectionCNN(
-        signal_length=signal_length,
-        input_channels=2,
-        num_classes=2,
-        anchor_scales=[512, 2048, 4096, 8192, 12288, 16384],
-    )
+@hydra.main(config_path=".", config_name="config.yaml", version_base="1.2")
+def main(config):
+    wandb.init(project="detect_sleep_states", config=config)
+    model = OneDObjectDetectionCNN(**config.model)
 
     dataset = DetectSleepStatesDataset(
-        train_series="./data/train_series_preprocessed_sample.csv",
-        train_events="./data/train_events_preprocessed_sample.csv",
-        transform=resize(signal_length),
+        **config.dataset,
+        transform=resize(config.model.signal_length),
     )
 
-    batch_size = 4
-    train_loader, val_loader = create_data_loaders(dataset, batch_size=batch_size)
+    train_loader, val_loader = create_data_loaders(dataset, **config.data_loader)
 
     loss_function = OneDObjectDetectionLoss()
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.training.learning_rate)
 
-    epochs = 10
-
-    for epoch in range(epochs):
+    for epoch in range(config.training.epochs):
         print("Epoch", epoch)
 
         tqdm_iterator = tqdm(train_loader, total=len(train_loader))
@@ -71,7 +71,7 @@ def main():
 
             scores, bboxes = model(signal)
 
-            gt_classes = torch.tensor([[1]] * batch_size)
+            gt_classes = torch.tensor([[1]] * config.data_loader.batch_size)
 
             loss = loss_function(scores, bboxes, gt_classes, gt_bboxes, model.anchors)
 
@@ -93,13 +93,16 @@ def main():
 
             scores, bboxes = model(signal)
 
-            gt_classes = torch.tensor([[1]] * batch_size)
+            gt_classes = torch.tensor([[1]] * config.data_loader.batch_size)
 
             loss = loss_function(scores, bboxes, gt_classes, gt_bboxes, model.anchors)
 
             mean_val_loss = mean_val_loss + (loss.item() - mean_val_loss) / (step + 1)
 
             tqdm_iterator.set_description(f"val_loss {mean_val_loss:.4f}")
+
+        # save model to output dir
+        output_dir = config.training.output_dir
 
 
 if __name__ == "__main__":

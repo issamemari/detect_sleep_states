@@ -1,0 +1,21 @@
+training:
+  output_dir: ${hydra:runtime.cwd}/checkpoints/${now:%Y-%m-%d}/${now:%H-%M}
+  epochs: 100
+  learning_rate: 0.0001
+
+
+dataset:
+  series: ${hydra:runtime.cwd}/data/train_series_preprocessed_sample.csv
+  events: ${hydra:runtime.cwd}/data/train_events_preprocessed_sample.csv
+
+
+model:
+  signal_length: 40000
+  input_channels: 2
+  num_classes: 2
+  anchor_scales: [512, 2048, 4096, 8192, 12288, 16384]
+
+
+data_loader:
+  batch_size: 4
+  num_workers: 64
