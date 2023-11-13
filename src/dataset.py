@@ -1,10 +1,10 @@
-from torch.utils.data import Dataset
 import pandas as pd
 import torch
+from torch.utils.data import Dataset
 
 
 class DetectSleepStatesDataset(Dataset):
-    def __init__(self, train_series: str, train_events: str):
+    def __init__(self, train_series: str, train_events: str, transform=None):
         self.train_series = pd.read_csv(train_series)
         self.train_events = pd.read_csv(train_events)
 
@@ -12,6 +12,8 @@ class DetectSleepStatesDataset(Dataset):
         self.train_events.set_index("series_id", inplace=True)
 
         self.series_ids = list(set(self.train_series.index))
+
+        self.transform = transform
 
     def __len__(self):
         return len(self.series_ids)
@@ -32,16 +34,22 @@ class DetectSleepStatesDataset(Dataset):
 
             bboxes.append([start, end])
 
-        return signal, torch.tensor(bboxes)
+        bboxes = torch.tensor(bboxes)
+
+        if self.transform:
+            signal = self.transform(signal)
+
+        return signal, bboxes
 
 
 def main():
     dataset = DetectSleepStatesDataset(
         train_series="./data/train_series_preprocessed_sample.csv",
-        train_events="./data/train_events_preprocessed_sample.csv"
+        train_events="./data/train_events_preprocessed_sample.csv",
     )
 
     import code
+
     code.interact(local=locals())
 
     print(len(dataset))
