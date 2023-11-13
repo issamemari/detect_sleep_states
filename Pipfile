@@ -16,6 +16,7 @@ dvc = {extras = ["s3"], version = "*"}
 pandarallel = "*"
 ipywidgets = "*"
 tqdm = "*"
+polars = "*"
 
 [dev-packages]
 

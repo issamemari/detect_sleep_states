@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d6876f6069dfc61b902880a66248e3777436706f2a71b092837bc972ffb3ae03"
+            "sha256": "4c9b036c073d98908d3eb633bf1972329b1c8b3e219381d2d989c5861b618e7b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -918,11 +918,11 @@
         },
         "importlib-resources": {
             "hashes": [
-                "sha256:9d48dcccc213325e810fd723e7fbb45ccb39f6cf5c31f00cf2b965f5f10f3cb9",
-                "sha256:aa50258bbfa56d4e33fbd8aa3ef48ded10d1735f11532b8df95388cc6bdb7e83"
+                "sha256:3893a00122eafde6894c59914446a512f728a0c1a45f9bb9b63721b6bacf0b4a",
+                "sha256:e8bf90d8213b486f428c9c39714b920041cb02c184686a3dee24905aaa8105d6"
             ],
             "markers": "python_version < '3.9'",
-            "version": "==6.1.0"
+            "version": "==6.1.1"
         },
         "ipykernel": {
             "hashes": [
@@ -1198,7 +1198,7 @@
                 "sha256:f136bab9c2cfd8da131132c2cf6cc27331dd6fae65f95f69dcd4ae3c3639c810",
                 "sha256:f3a86ed21e4f87050382c7bc96571755193c4c1392490744ac73d660e8f564a9"
             ],
-            "markers": "python_version < '3.10'",
+            "markers": "python_version >= '3.8'",
             "version": "==1.24.4"
         },
         "omegaconf": {
@@ -1368,6 +1368,19 @@
             "index": "pypi",
             "markers": "python_version >= '3.6'",
             "version": "==5.18.0"
+        },
+        "polars": {
+            "hashes": [
+                "sha256:0ece4c108c749b213fbba006eb39ffb3703be208121a625369bfe47048d321a0",
+                "sha256:55b16602bcbf91b5ce888d1a588b47fcd9a35221b1a08c5a27cfe6d7cbd81be2",
+                "sha256:69c9e6919a5113c75e059ba773f22ac1ff78d966ab5663f07dc0dc5ff916246c",
+                "sha256:6efbc14c051bfc188c85ead71197ba0bd2fce7e6131061e28e8b280350d37a35",
+                "sha256:9a47da843a425fb4d9aa23f69f6e855f0498cdfb9d35a93c0a5e377594649aac",
+                "sha256:c308e501805d9ca256b695fd55974c6267f68e05a98ccd14430071a5f9c97be8"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.19.12"
         },
         "prompt-toolkit": {
             "hashes": [
