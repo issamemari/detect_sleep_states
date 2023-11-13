@@ -12,6 +12,8 @@ scikit-learn = "*"
 kaggle = "*"
 ipykernel = "*"
 pyarrow = "*"
+dvc = {extras = ["s3"], version = "*"}
+swifter = "*"
 
 [dev-packages]
 
