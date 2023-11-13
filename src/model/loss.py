@@ -2,35 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from metrics import iou
+
 
 class OneDObjectDetectionLoss(nn.Module):
-    def calculate_ious(self, anchors: torch.Tensor, box: torch.Tensor) -> torch.Tensor:
-        """
-        Calculate the IoU between a ground truth box and a set of anchors
-        """
-        # Calculate the intersection of the box and anchors
-        intersection_start = torch.max(anchors[:, 0], box[0])
-        intersection_end = torch.min(anchors[:, 1], box[1])
-        intersection = torch.clamp(intersection_end - intersection_start, min=0)
-
-        # Calculate the areas
-        anchor_areas = anchors[:, 1] - anchors[:, 0]
-        box_area = box[1] - box[0]
-
-        # Calculate the union of the box and anchors
-        union = anchor_areas + box_area - intersection
-
-        # Calculate the IoU
-        ious = intersection / union
-
-        return ious
-
     def find_best_anchor(self, anchors: torch.Tensor, box: torch.Tensor) -> int:
         """
         Find the best matching anchor for a given ground truth box
         """
         # Calculate the IoU between the ground truth box and each anchor
-        ious = self.calculate_ious(anchors, box)
+        ious = iou(anchors, box)
 
         # Find the anchor with the highest IoU
         best_anchor = torch.argmax(ious)

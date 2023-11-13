@@ -2,6 +2,7 @@ training:
   output_dir: ${hydra:runtime.cwd}/checkpoints/${now:%Y-%m-%d}/${now:%H-%M}
   epochs: 100
   learning_rate: 0.0001
+  iou_threshold: 0.5
 
 
 dataset:
@@ -18,4 +19,4 @@ model:
 
 data_loader:
   batch_size: 4
-  num_workers: 4
+  num_workers: 0

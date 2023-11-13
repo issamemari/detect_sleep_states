@@ -8,7 +8,12 @@ from tqdm import tqdm
 
 import wandb
 from dataset import DetectSleepStatesDataset
-from model import OneDObjectDetectionCNN, OneDObjectDetectionLoss
+from metrics import mean_average_precision
+from model import (
+    OneDObjectDetectionCNN,
+    OneDObjectDetectionLoss,
+    non_maximum_suppression,
+)
 from transforms import resize
 
 logger = logging.getLogger(__name__)
@@ -48,7 +53,11 @@ def create_data_loaders(dataset, *, batch_size: int, num_workers: int):
 
 @hydra.main(config_path=".", config_name="config.yaml", version_base="1.2")
 def main(config):
-    wandb.init(project="detect_sleep_states", config=dict(config))
+    wandb.init(
+        project="detect_sleep_states",
+        config=dict(config),
+        entity="issa-memari",
+    )
     model = OneDObjectDetectionCNN(**config.model)
 
     dataset = DetectSleepStatesDataset(
@@ -67,13 +76,15 @@ def main(config):
 
         tqdm_iterator = tqdm(train_loader, total=len(train_loader))
 
+        model.train()
         mean_training_loss = 0
         for step, batch in enumerate(tqdm_iterator):
+            break
             signal, gt_bboxes = batch
 
-            scores, bboxes = model(signal)
-
             gt_classes = torch.tensor([[1]] * config.data_loader.batch_size)
+
+            scores, bboxes = model(signal)
 
             loss = loss_function(scores, bboxes, gt_classes, gt_bboxes, model.anchors)
 
@@ -89,15 +100,27 @@ def main(config):
         # Validation
         tqdm_iterator = tqdm(val_loader, total=len(val_loader))
 
+        model.eval()
         mean_val_loss = 0
         for step, batch in enumerate(tqdm_iterator):
             signal, gt_bboxes = batch
 
-            scores, bboxes = model(signal)
-
             gt_classes = torch.tensor([[1]] * config.data_loader.batch_size)
 
-            loss = loss_function(scores, bboxes, gt_classes, gt_bboxes, model.anchors)
+            with torch.no_grad():
+                scores, bboxes = model(signal)
+
+                loss = loss_function(
+                    scores, bboxes, gt_classes, gt_bboxes, model.anchors
+                )
+
+            bboxes_filtered = non_maximum_suppression(
+                scores, bboxes, iou_threshold=config.training.iou_threshold
+            )
+
+            map = mean_average_precision(
+                bboxes_filtered, gt_bboxes, iou_threshold=config.training.iou_threshold
+            )
 
             mean_val_loss = mean_val_loss + (loss.item() - mean_val_loss) / (step + 1)
 
