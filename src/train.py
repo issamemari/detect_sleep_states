@@ -1,4 +1,6 @@
+import functools
 import logging
+import os
 
 import hydra
 import torch
@@ -51,7 +53,7 @@ def main(config):
 
     dataset = DetectSleepStatesDataset(
         **config.dataset,
-        transform=resize(config.model.signal_length),
+        transform=functools.partial(resize, size=config.model.signal_length),
     )
 
     train_loader, val_loader = create_data_loaders(dataset, **config.data_loader)
@@ -103,6 +105,10 @@ def main(config):
 
         # save model to output dir
         output_dir = config.training.output_dir
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        torch.save(model.state_dict(), f"{output_dir}/model_{epoch}.pth")
 
 
 if __name__ == "__main__":

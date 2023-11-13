@@ -18,4 +18,4 @@ model:
 
 data_loader:
   batch_size: 4
-  num_workers: 64
+  num_workers: 4
