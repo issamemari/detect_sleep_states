@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset
 import pandas as pd
+import torch
 
 
 class DetectSleepStatesDataset(Dataset):
@@ -10,14 +11,28 @@ class DetectSleepStatesDataset(Dataset):
         self.train_series.set_index("series_id", inplace=True)
         self.train_events.set_index("series_id", inplace=True)
 
+        self.series_ids = list(set(self.train_series.index))
+
     def __len__(self):
-        return len(self.train_series)
+        return len(self.series_ids)
 
     def __getitem__(self, idx):
-        series_id = self.train_series.index[idx]
+        series_id = self.series_ids[idx]
         series = self.train_series.loc[series_id]
         events = self.train_events.loc[series_id]
-        return series, events
+
+        signal = torch.tensor(series[["anglez", "enmo"]].values.T)
+        signal_len = signal.shape[1]
+
+        bboxes = []
+        # loop over events in pairs
+        for i in range(0, len(events), 2):
+            start = events.iloc[i]["step"] / signal_len
+            end = events.iloc[i + 1]["step"] / signal_len
+
+            bboxes.append([start, end])
+
+        return signal, torch.tensor(bboxes)
 
 
 def main():
