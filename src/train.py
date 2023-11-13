@@ -1,6 +1,8 @@
 from dataset import DetectSleepStatesDataset
-from model import OneDObjectDetectionCNN
+from model import OneDObjectDetectionCNN, OneDObjectDetectionLoss
 from transforms import resize
+
+import torch
 
 
 def main():
@@ -17,6 +19,13 @@ def main():
         train_events="./data/train_events_preprocessed_sample.csv",
         transform=resize(signal_length),
     )
+
+    loss_function = OneDObjectDetectionLoss()
+
+    signal, gt_bboxes = dataset[0]
+    scores, bboxes = model(signal.unsqueeze(0))
+    gt_classes = torch.tensor([[1]])
+
 
     import code
     code.interact(local=locals())

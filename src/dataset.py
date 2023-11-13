@@ -34,7 +34,7 @@ class DetectSleepStatesDataset(Dataset):
 
             bboxes.append([start, end])
 
-        bboxes = torch.tensor(bboxes)
+        bboxes = torch.tensor(bboxes).float()
 
         if self.transform:
             signal = self.transform(signal)
