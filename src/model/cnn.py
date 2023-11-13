@@ -3,7 +3,7 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from anchors import generate_anchors
+from .anchors import generate_anchors
 
 
 class OneDObjectDetectionCNN(nn.Module):
