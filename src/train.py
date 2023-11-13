@@ -51,22 +51,22 @@ def main():
         transform=resize(signal_length),
     )
 
-    train_loader, val_loader = create_data_loaders(dataset, batch_size=4)
+    batch_size = 4
+    train_loader, val_loader = create_data_loaders(dataset, batch_size=batch_size)
 
     loss_function = OneDObjectDetectionLoss()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
     epochs = 10
-    batch_size = 4
 
-    torch.autograd.set_detect_anomaly(True)
+    for epoch in range(epochs):
+        print("Epoch", epoch)
 
-    for epoch in range(10):
         tqdm_iterator = tqdm(train_loader, total=len(train_loader))
-        tqdm_iterator.set_description(f"Epoch {epoch}: ")
 
-        for batch in tqdm_iterator:
+        mean_training_loss = 0
+        for step, batch in enumerate(tqdm_iterator):
             signal, gt_bboxes = batch
 
             scores, bboxes = model(signal)
@@ -79,7 +79,27 @@ def main():
             loss.backward()
             optimizer.step()
 
-            print(loss)
+            mean_training_loss = mean_training_loss + (
+                loss.item() - mean_training_loss
+            ) / (step + 1)
+            tqdm_iterator.set_description(f"loss {mean_training_loss:.4f}")
+
+        # Validation
+        tqdm_iterator = tqdm(val_loader, total=len(val_loader))
+
+        mean_val_loss = 0
+        for step, batch in enumerate(tqdm_iterator):
+            signal, gt_bboxes = batch
+
+            scores, bboxes = model(signal)
+
+            gt_classes = torch.tensor([[1]] * batch_size)
+
+            loss = loss_function(scores, bboxes, gt_classes, gt_bboxes, model.anchors)
+
+            mean_val_loss = mean_val_loss + (loss.item() - mean_val_loss) / (step + 1)
+
+            tqdm_iterator.set_description(f"val_loss {mean_val_loss:.4f}")
 
 
 if __name__ == "__main__":

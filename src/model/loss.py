@@ -65,10 +65,10 @@ class OneDObjectDetectionLoss(nn.Module):
         mask = bboxes_ready != 0
         bboxes = bboxes * mask
 
-        classification_loss = F.binary_cross_entropy_with_logits(
-            scores, scores_ready, reduction="sum"
-        )
+        # classification_loss = F.binary_cross_entropy_with_logits(
+        #     scores, scores_ready, reduction="sum"
+        # )
 
         regression_loss = F.smooth_l1_loss(bboxes, bboxes_ready, reduction="sum")
 
-        return classification_loss + regression_loss
+        return regression_loss
