@@ -46,7 +46,7 @@ def create_data_loaders(dataset, *, batch_size: int, num_workers: int):
 
 @hydra.main(config_path=".", config_name="config.yaml", version_base="1.2")
 def main(config):
-    wandb.init(project="detect_sleep_states", config=config)
+    wandb.init(project="detect_sleep_states", config=dict(config))
     model = OneDObjectDetectionCNN(**config.model)
 
     dataset = DetectSleepStatesDataset(
