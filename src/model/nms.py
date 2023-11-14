@@ -44,7 +44,7 @@ def non_maximum_suppression(
                 if iou > iou_threshold:
                     to_remove.append(idx)
 
-            to_remove = torch.tensor(to_remove, dtype=torch.int32)
+            to_remove = torch.tensor(to_remove, dtype=torch.int64)
 
             to_keep = torch.ones(batch_bboxes.shape[0], dtype=torch.bool)
             to_keep[to_remove] = False

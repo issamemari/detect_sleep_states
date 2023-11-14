@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 
 class DetectSleepStatesDataset(Dataset):
     def __init__(self, series: str, events: str, transform=None):
-        self.series = pd.read_csv(series)
+        self.series = pd.read_parquet(series)
         self.events = pd.read_csv(events)
 
         self.series.set_index("series_id", inplace=True)
@@ -44,8 +44,8 @@ class DetectSleepStatesDataset(Dataset):
 
 def main():
     dataset = DetectSleepStatesDataset(
-        train_series="./data/train_series_preprocessed_sample.csv",
-        train_events="./data/train_events_preprocessed_sample.csv",
+        series="./data/train_series.parquet",
+        events="./data/train_events.csv",
     )
 
     import code

@@ -6,8 +6,8 @@ training:
 
 
 dataset:
-  series: ${hydra:runtime.cwd}/data/train_series_preprocessed_sample.csv
-  events: ${hydra:runtime.cwd}/data/train_events_preprocessed_sample.csv
+  series: ${hydra:runtime.cwd}/data/train_series_preprocessed.parquet
+  events: ${hydra:runtime.cwd}/data/train_events_preprocessed.csv
 
 
 model:
