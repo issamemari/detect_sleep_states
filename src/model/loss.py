@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from metrics import iou
+from metrics import intersection_over_union
 
 
 class OneDObjectDetectionLoss(nn.Module):
@@ -11,7 +11,7 @@ class OneDObjectDetectionLoss(nn.Module):
         Find the best matching anchor for a given ground truth box
         """
         # Calculate the IoU between the ground truth box and each anchor
-        ious = iou(anchors, box)
+        ious = intersection_over_union(anchors, box)
 
         # Find the anchor with the highest IoU
         best_anchor = torch.argmax(ious)

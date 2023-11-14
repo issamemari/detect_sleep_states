@@ -1,6 +1,6 @@
 import torch
 
-from metrics import iou
+from metrics import intersection_over_union
 
 
 def non_maximum_suppression(
@@ -39,7 +39,7 @@ def non_maximum_suppression(
                     to_remove.append(idx)
                     continue
 
-                iou = iou(bbox.unsqueeze(0), max_score_bbox)[0]
+                iou = intersection_over_union(bbox.unsqueeze(0), max_score_bbox)[0]
 
                 if iou > iou_threshold:
                     to_remove.append(idx)

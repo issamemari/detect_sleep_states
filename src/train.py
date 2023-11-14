@@ -79,7 +79,6 @@ def main(config):
         model.train()
         mean_training_loss = 0
         for step, batch in enumerate(tqdm_iterator):
-            break
             signal, gt_bboxes = batch
 
             gt_classes = torch.tensor([[1]] * config.data_loader.batch_size)
@@ -102,6 +101,7 @@ def main(config):
 
         model.eval()
         mean_val_loss = 0
+        map = 0
         for step, batch in enumerate(tqdm_iterator):
             signal, gt_bboxes = batch
 
@@ -118,13 +118,15 @@ def main(config):
                 scores, bboxes, iou_threshold=config.training.iou_threshold
             )
 
-            map = mean_average_precision(
-                bboxes_filtered, gt_bboxes, iou_threshold=config.training.iou_threshold
-            )
+            batch_map = mean_average_precision(bboxes_filtered, gt_bboxes)
+
+            map = map + (batch_map - map) / (step + 1)
 
             mean_val_loss = mean_val_loss + (loss.item() - mean_val_loss) / (step + 1)
 
-            tqdm_iterator.set_description(f"val_loss {mean_val_loss:.4f}")
+            tqdm_iterator.set_description(
+                f"val_loss {mean_val_loss:.4f}, map {map:.4f}"
+            )
 
         # save model to output dir
         output_dir = config.training.output_dir

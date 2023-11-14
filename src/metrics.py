@@ -1,7 +1,7 @@
 import torch
 
 
-def iou(bboxes: torch.Tensor, box: torch.Tensor) -> torch.Tensor:
+def intersection_over_union(bboxes: torch.Tensor, box: torch.Tensor) -> torch.Tensor:
     """
     Calculate the IoUs between a bounding box and a batch of bounding boxes.
 
@@ -45,28 +45,27 @@ def mean_average_precision(
         Mean average precision
     """
 
-    # Sort the predictions by confidence
-    pred_bboxes = pred_bboxes[torch.argsort(pred_bboxes[:, 0], descending=True)]
+    all_precisions = []
+    for batch_idx in range(len(gt_bboxes)):
+        batch_pred_bboxes = pred_bboxes[batch_idx]
+        batch_gt_bboxes = gt_bboxes[batch_idx]
 
-    # Calculate the IoU between each prediction and the ground truth boxes
-    ious = iou(pred_bboxes[:, 1:], gt_bboxes)
+        # calculate iou between every predicted bbox and every gt bbox
+        best_ious = []
+        for gt_bbox in batch_gt_bboxes:
+            ious = intersection_over_union(batch_pred_bboxes, gt_bbox)
 
-    # Calculate the precision and recall for each prediction
-    num_predictions = pred_bboxes.size(0)
-    precisions = torch.zeros(num_predictions)
-    recalls = torch.zeros(num_predictions)
-    for idx, iou in enumerate(ious):
-        # Calculate the number of true positives
-        true_positives = torch.sum(iou > 0.5)
+            best_iou_idx = torch.argmax(ious)
+            best_iou = ious[best_iou_idx]
+            best_ious.append(best_iou)
 
-        # Calculate the precision and recall
-        precision = true_positives / (idx + 1)
-        recall = true_positives / gt_bboxes.size(0)
+        precisions = []
+        for threshold in torch.arange(0.5, 1, 0.05):
+            tp = torch.tensor([best_iou > threshold for best_iou in best_ious]).sum()
+            precision = tp / len(batch_pred_bboxes)
 
-        precisions[idx] = precision
-        recalls[idx] = recall
+            precisions.append(precision)
 
-    # Calculate the average precision
-    average_precision = torch.sum(precisions * recalls) / torch.sum(recalls)
+        all_precisions.append(torch.tensor(precisions).mean().item())
 
-    return average_precision
+    return torch.tensor(precisions).mean().item()
