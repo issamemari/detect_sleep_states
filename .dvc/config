@@ -1,0 +1,4 @@
+[core]
+    remote = detect_sleep_states
+['remote "detect_sleep_states"']
+    url = s3://issa-dvc-store
